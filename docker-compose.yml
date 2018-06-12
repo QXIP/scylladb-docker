@@ -1,0 +1,35 @@
+version: "2.1"
+
+services:
+
+  scylla-node1:
+    image: qxip/scylladb
+    restart: always
+    environment:
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_SEEDS=scylla-node1
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  scylla-node2:
+    image: qxip/scylladb
+    restart: always
+    environment:
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_SEEDS=scylla-node1
+    depends_on:
+      scylla-node1:
+        condition: service_healthy
+
+  scylla-node3:
+    image: qxip/scylladb
+    restart: always
+    environment:
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_SEEDS=scylla-node1
+    depends_on:
+      scylla-node1:
+        condition: service_healthy
